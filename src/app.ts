@@ -9,7 +9,6 @@ import morgan from "morgan";
 import { ExceptionMiddleware } from "./middlewares/ExceptionMiddleware";
 import TYPES from "./constants/types";
 import { ProductsService } from "./services/ProductsService";
-import "reflect-metadata";
 import "./controllers";
 import "./models/ApiModels";
 
@@ -36,14 +35,6 @@ class App {
               title: "Sakok",
               version: "1.0",
             },
-            // securityDefinitions: {
-            //   authorization: {
-            //     type: swagger.SwaggerDefinitionConstant.Security.Type.API_KEY,
-            //     in: swagger.SwaggerDefinitionConstant.Security.In.HEADER,
-            //     name: "Authorization",
-            //   },
-            // },
-            // basePath: "/api/",
           },
         })
       );
@@ -66,10 +57,6 @@ class App {
 
   private registerServices() {
     this.container.bind<ProductsService>(TYPES.ProductsService).to(ProductsService);
-
-    // this.container
-    //   .bind<ProductsController>(TYPE.Controller)
-    //   .to(ProductsController);
   }
 }
 

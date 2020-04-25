@@ -29,12 +29,24 @@ export class ProductsController extends BaseHttpController {
     security: {
       apiKeyHeader: [],
     },
+    parameters: {
+      query: {
+        name: {
+          type: SwaggerDefinitionConstant.Parameter.Type.STRING,
+          required: false,
+        },
+      },
+    },
   })
   @httpGet("/")
-  public async getProducts() {
+  public async getProducts(request: Request) {
+    let filter = {};
+    if (request.query.name) {
+      filter = { name: { $regex: request.query.name, $options: "i" } };
+    }
     return this.json({
-      items: await this.productsService.getProducts(),
-      totalCount: await this.productsService.getProductsCount(),
+      items: await this.productsService.getProducts(filter),
+      totalCount: await this.productsService.getProductsCount(filter),
     });
   }
 

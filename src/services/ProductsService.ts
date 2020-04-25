@@ -3,12 +3,12 @@ import { injectable } from "inversify";
 
 @injectable()
 export class ProductsService {
-  public async getProducts() {
-    return await Product.find({});
+  public async getProducts(filter = {}) {
+    return await Product.find(filter);
   }
 
-  public async getProductsCount() {
-    return await Product.count({});
+  public async getProductsCount(filter = {}) {
+    return await Product.count(filter);
   }
 
   public async createProduct(data) {
