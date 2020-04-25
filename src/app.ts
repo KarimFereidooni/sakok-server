@@ -1,35 +1,75 @@
 import express, { Application } from "express";
-import { Controller } from "./controllers/main.controller";
-
-import { MONGO_URL } from "./constants/sakok.constants";
-import bodyParser from "body-parser";
+import * as swagger from "swagger-express-ts";
+import config from "../app-config.json";
 import cors from "cors";
 import mongoose from "mongoose";
+import { Container } from "inversify";
+import { InversifyExpressServer } from "inversify-express-utils";
+import morgan from "morgan";
+import { ExceptionMiddleware } from "./middlewares/ExceptionMiddleware";
+import TYPES from "./constants/types";
+import { ProductsService } from "./services/ProductsService";
+import "reflect-metadata";
+import "./controllers";
+import "./models/ApiModels";
 
 class App {
-  public app: Application;
-  public pokeController: Controller;
+  public container = new Container();
+  public server = new InversifyExpressServer(this.container);
+  public app: Application = express();
 
-  constructor() {
-    this.app = express();
-    this.setConfig();
+  public constructor() {
     this.setMongoConfig();
+    this.registerServices();
+    this.server.setConfig((app) => {
+      app.use(express.urlencoded({ extended: false }));
+      app.use(morgan("tiny"));
+      app.use(cors());
+      app.use(express.json());
+      app.use("/api-docs/swagger", express.static("swagger"));
+      app.use("/api-docs/swagger/assets", express.static("node_modules/swagger-ui-dist"));
+      app.use(
+        swagger.express({
+          definition: {
+            schemes: ["http"],
+            info: {
+              title: "Sakok",
+              version: "1.0",
+            },
+            // securityDefinitions: {
+            //   authorization: {
+            //     type: swagger.SwaggerDefinitionConstant.Security.Type.API_KEY,
+            //     in: swagger.SwaggerDefinitionConstant.Security.In.HEADER,
+            //     name: "Authorization",
+            //   },
+            // },
+            // basePath: "/api/",
+          },
+        })
+      );
+    });
 
-    this.pokeController = new Controller(this.app);
-  }
+    this.server.setErrorConfig((app) => {
+      app.use(ExceptionMiddleware.handle);
+    });
 
-  private setConfig() {
-    this.app.use(bodyParser.json({ limit: "50mb" }));
-    this.app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
-    this.app.use(cors());
+    const serverInstance = this.server.build();
+    this.app.use("/", serverInstance);
   }
 
   private setMongoConfig() {
     mongoose.Promise = global.Promise;
-
-    mongoose.connect(MONGO_URL, {
+    mongoose.connect(config.MongoDbUrl, {
       useNewUrlParser: true,
     });
+  }
+
+  private registerServices() {
+    this.container.bind<ProductsService>(TYPES.ProductsService).to(ProductsService);
+
+    // this.container
+    //   .bind<ProductsController>(TYPE.Controller)
+    //   .to(ProductsController);
   }
 }
 

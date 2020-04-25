@@ -1,5 +1,5 @@
 import app from "./app";
-import { PORT } from "./constants/sakok.constants";
+import config from "../app-config.json";
 
 // tslint:disable-next-line: no-console
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+app.listen(config.Port, () => console.log(`Listening on port ${config.Port}`));

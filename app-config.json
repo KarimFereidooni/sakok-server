@@ -1,0 +1,4 @@
+{
+  "Port": 3000,
+  "MongoDbUrl": "mongodb://localhost:27017/sakok"
+}
