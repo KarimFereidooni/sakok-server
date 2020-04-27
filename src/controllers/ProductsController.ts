@@ -35,6 +35,26 @@ export class ProductsController extends BaseHttpController {
           type: SwaggerDefinitionConstant.Parameter.Type.STRING,
           required: false,
         },
+        page: {
+          type: SwaggerDefinitionConstant.Parameter.Type.INTEGER,
+          required: true,
+          default: 1,
+        },
+        itemsPerPage: {
+          type: SwaggerDefinitionConstant.Parameter.Type.INTEGER,
+          required: true,
+          default: 10,
+        },
+        sortBy: {
+          type: SwaggerDefinitionConstant.Parameter.Type.STRING,
+          required: true,
+          default: "name" as any,
+        },
+        sortDesc: {
+          type: SwaggerDefinitionConstant.Parameter.Type.BOOLEAN,
+          required: true,
+          default: false as any,
+        },
       },
     },
   })
@@ -44,8 +64,14 @@ export class ProductsController extends BaseHttpController {
     if (request.query.name) {
       filter = { name: { $regex: request.query.name, $options: "i" } };
     }
+    const skip = (parseInt(request.query.page.toString(), 10) - 1) * parseInt(request.query.itemsPerPage.toString(), 10);
+    const limit = parseInt(request.query.itemsPerPage.toString(), 10);
+    const sort =
+      !request.query.sortDesc || request.query.sortDesc.toString().toLowerCase() === "false"
+        ? [[request.query.sortBy, 1]]
+        : [[request.query.sortBy, -1]];
     return this.json({
-      items: await this.productsService.getProducts(filter),
+      items: await this.productsService.getProducts(filter, skip, limit, sort),
       totalCount: await this.productsService.getProductsCount(filter),
     });
   }

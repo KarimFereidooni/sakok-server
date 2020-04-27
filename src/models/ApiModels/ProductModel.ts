@@ -1,4 +1,4 @@
-import { ApiModel, ApiModelProperty } from "swagger-express-ts";
+import { ApiModel, ApiModelProperty, SwaggerDefinitionConstant } from "swagger-express-ts";
 
 @ApiModel({
   description: "Product Model",
@@ -16,4 +16,13 @@ export class ProductModel {
     required: false,
   })
   description?: string;
+
+  @ApiModelProperty({
+    description: "Properties of product",
+    required: false,
+    type: SwaggerDefinitionConstant.ARRAY,
+    itemType: SwaggerDefinitionConstant.OBJECT,
+    model: "ProductProperty",
+  })
+  properties?: [{ name: string; value: string }];
 }

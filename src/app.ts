@@ -25,7 +25,7 @@ class App {
       app.use(morgan("tiny"));
       app.use(cors());
       app.use(express.json());
-      app.use("/api-docs/swagger", express.static("swagger"));
+      app.use("/", express.static("swagger"));
       app.use("/api-docs/swagger/assets", express.static("node_modules/swagger-ui-dist"));
       app.use(
         swagger.express({
